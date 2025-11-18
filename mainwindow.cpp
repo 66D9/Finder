@@ -11,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     manager = new SearchManager(this);
+
+    ui->tBSearchResult->setOpenLinks(false);
+    connect(manager,&SearchManager::searchResultReady,this,&MainWindow::onsearchResultReady);
+    connect(ui->tBSearchResult, &QTextBrowser::anchorClicked,
+            this, &MainWindow::onFileLinkClicked);
 }
 
 MainWindow::~MainWindow()
@@ -38,9 +43,14 @@ void MainWindow::on_pBSearch_clicked()
         return;
     }
 
-    QStringList matchedFiles = manager->Search(searchDir,searchText);
-
+    manager->Search(searchDir,searchText);
     ui->tBSearchResult->clear();
+
+}
+
+void MainWindow::onsearchResultReady(const QStringList& matchedFiles)
+{
+
     if(matchedFiles.isEmpty())
     {
         ui->tBSearchResult->setText("没有任何匹配结果。");
@@ -49,8 +59,19 @@ void MainWindow::on_pBSearch_clicked()
 
     for(const QString& matchedfile : matchedFiles)
     {
-        ui->tBSearchResult->append(matchedfile);
+        QString link = QString("<a href=\"file:///%1\">%1</a><br>").arg(matchedfile);
+        ui->tBSearchResult->insertHtml(link);
     }
-
 }
 
+void MainWindow::onFileLinkClicked(const QUrl& url)
+{
+    // 确保是本地文件路径
+    if (url.scheme() == "file") {
+        // 使用系统默认程序打开文件
+        bool success = QDesktopServices::openUrl(url);
+        if (!success) {
+            QMessageBox::warning(this, "错误", "无法打开文件: " + url.toLocalFile());
+        }
+    }
+}

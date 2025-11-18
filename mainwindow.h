@@ -3,6 +3,9 @@
 
 #include <QMainWindow>
 #include "searchmanager.h"
+#include <QUrl>
+#include <QDesktopServices>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -22,6 +25,10 @@ private slots:
     void on_pBSelectDir_clicked();
 
     void on_pBSearch_clicked();
+
+    void onsearchResultReady(const QStringList&);
+    void onFileLinkClicked(const QUrl& url);
+
 
 private:
     Ui::MainWindow *ui;

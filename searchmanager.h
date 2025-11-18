@@ -2,6 +2,7 @@
 #define SEARCHMANAGER_H
 
 #include <QObject>
+#include <QThreadPool>
 
 class SearchManager : public QObject
 {
@@ -9,9 +10,21 @@ class SearchManager : public QObject
 public:
     explicit SearchManager(QObject *parent = nullptr);
 
-    QStringList Search(const QString&, const QString& )const;
+    void Search(const QString&, const QString& );
+
+    void startSearch(const QString&)const;
+
+private:
+    QThreadPool* m_threadPool;
+    QString m_keyword;
+
+private slots:
+    void onSearchFinished(const QStringList&, const QStringList&);
+
 
 signals:
+
+    void searchResultReady(const QStringList&);
 };
 
 #endif // SEARCHMANAGER_H
